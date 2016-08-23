@@ -42,6 +42,11 @@ SQL_TR_IMPLICATION=$(mktemp --tmpdir tmsu.db.implication.tr.sql.${DATE}.XXXXXXX)
 
 cat > ${TMSU_DB}
 
+if [[ -z "$(file ${TMSU_DB}) | grep 'SQLite 3.x database')" ]]; then
+	cat ${TMSU_DB}
+	exit
+fi
+
 sqlite3 ${TMSU_DB} < ${SQL_SELECT_TR_FILE_TAG} > ${SQL_TR_FILE_TAG}
 sqlite3 ${TMSU_DB} < ${SQL_SELECT_TR_IMPLICATION} > ${SQL_TR_IMPLICATION}
 

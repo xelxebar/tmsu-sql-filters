@@ -29,6 +29,7 @@ TMSU_DIR=.tmsu
 GIT_FILTER_DIR=$(dirname $0)
 
 TMSU_DB=$(mktemp --tmpdir tmsu.db.${DATE}.XXXXXXX)
+SQL_TMSU_DB=$(mktemp --tmpdir tmsu.db.sql${DATE}.XXXXXXX)
 
 SQL_SCHEMA_RT_FILE_TAG=${GIT_FILTER_DIR}/file_tag.rt.schema.sql
 SQL_SCHEMA_RT_IMPLICATION=${GIT_FILTER_DIR}/implication.rt.schema.sql
@@ -40,7 +41,14 @@ SQL_RT_FILE_TAG=$(mktemp --tmpdir tmsu.db.file_tag.rt.sql.${DATE}.XXXXXXX)
 SQL_RT_IMPLICATION=$(mktemp --tmpdir tmsu.db.implication.rt.sql.${DATE}.XXXXXXX)
 
 
-sqlite3 ${TMSU_DB} <&0
+cat > ${TMSU_DB_SQL}
+
+if [[ -z "$(file ${TMSU_DB_SQL}) | grep 'UTF-8 Unicode text')" ]]; then
+	cat ${TMSU_DB_SQL}
+	exit
+fi
+
+sqlite3 ${TMSU_DB} < ${TMSU_DB_SQL}
 
 sqlite3 ${TMSU_DB} < ${SQL_SELECT_RT_FILE_TAG} > ${SQL_RT_FILE_TAG}
 sqlite3 ${TMSU_DB} < ${SQL_SELECT_RT_IMPLICATION} > ${SQL_RT_IMPLICATION}
