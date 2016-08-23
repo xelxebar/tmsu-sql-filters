@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-# git smudge filter for tmsu database
+# git clean filter for tmsu database
 # 
 # Copyright © 2016 Wilson, Brandon
 # 
@@ -26,32 +26,32 @@
 DATE=$(date '+%Y-%m-%d-%H:%M:%S')
 
 TMSU_DIR=.tmsu
-GIT_FILTER_DIR=.gitfilters/tmsu.db.sql
+GIT_FILTER_DIR=$(dirname $0)
 
 TMSU_DB=$(mktemp --tmpdir tmsu.db.${DATE}.XXXXXXX)
 
-SQL_SCHEMA_FILE_TAG=${GIT_FILTER_DIR}/file_tag.rt.schema.sql
-SQL_SCHEMA_IMPLICATION=${GIT_FILTER_DIR}/implication.rt.schema.sql
+SQL_SCHEMA_TR_FILE_TAG=${GIT_FILTER_DIR}/file_tag.tr.schema.sql
+SQL_SCHEMA_TR_IMPLICATION=${GIT_FILTER_DIR}/implication.tr.schema.sql
 
-SQL_SELECT_RT_FILE_TAG=${GIT_FILTER_DIR}/file_tag.rt.sql
-SQL_SELECT_RT_IMPLICATION=${GIT_FILTER_DIR}/implication.rt.sql
+SQL_SELECT_TR_FILE_TAG=${GIT_FILTER_DIR}/file_tag.tr.sql
+SQL_SELECT_TR_IMPLICATION=${GIT_FILTER_DIR}/implication.tr.sql
 
-SQL_RT_FILE_TAG=$(mktemp --tmpdir tmsu.db.file_tag.rt.sql.${DATE}.XXXXXXX)
-SQL_RT_IMPLICATION=$(mktemp --tmpdir tmsu.db.implication.rt.sql.${DATE}.XXXXXXX)
+SQL_TR_FILE_TAG=$(mktemp --tmpdir tmsu.db.file_tag.tr.sql.${DATE}.XXXXXXX)
+SQL_TR_IMPLICATION=$(mktemp --tmpdir tmsu.db.implication.tr.sql.${DATE}.XXXXXXX)
 
 
-sqlite3 ${TMSU_DB} <&0
+cat > ${TMSU_DB}
 
-sqlite3 ${TMSU_DB} < ${SQL_SELECT_RT_FILE_TAG} > ${SQL_RT_FILE_TAG}
-sqlite3 ${TMSU_DB} < ${SQL_SELECT_RT_IMPLICATION} > ${SQL_RT_IMPLICATION}
+sqlite3 ${TMSU_DB} < ${SQL_SELECT_TR_FILE_TAG} > ${SQL_TR_FILE_TAG}
+sqlite3 ${TMSU_DB} < ${SQL_SELECT_TR_IMPLICATION} > ${SQL_TR_IMPLICATION}
 
 sqlite3 ${TMSU_DB} 'DROP TABLE file_tag'
 sqlite3 ${TMSU_DB} 'DROP TABLE implication'
 
-sqlite3 ${TMSU_DB} < ${SQL_SCHEMA_FILE_TAG}
-sqlite3 ${TMSU_DB} < ${SQL_SCHEMA_IMPLICATION}
+sqlite3 ${TMSU_DB} < ${SQL_SCHEMA_TR_FILE_TAG}
+sqlite3 ${TMSU_DB} < ${SQL_SCHEMA_TR_IMPLICATION}
 
-sqlite3 ${TMSU_DB} < ${SQL_RT_FILE_TAG}
-sqlite3 ${TMSU_DB} < ${SQL_RT_IMPLICATION}
+sqlite3 ${TMSU_DB} < ${SQL_TR_FILE_TAG}
+sqlite3 ${TMSU_DB} < ${SQL_TR_IMPLICATION}
 
 sqlite3 ${TMSU_DB} .dump
